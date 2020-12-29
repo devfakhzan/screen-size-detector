@@ -1,16 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test</title>
+    <style>
+        .main-container li.in-mobile {
+            background: green;
+        }
+    </style>
     <script src="../dist/screen-size-detector.min.js"></script>
-    <script>
-        const screen = new ScreenSizeDetector();
-        console.log(screen);
-    </script>
-</head>
-<body>
     
+    
+</head>
+
+<body>
+    <div class="main-container">
+        <ul>
+            <li>Test 1</li>
+            <li>Test 2</li>
+            <li>Test 3</li>
+            <li>Test 4</li>
+        </ul>
+        <input type="text"/>
+    </div>
+    <script defer>
+        
+
+        
+
+        const screen = new ScreenSizeDetector();
+        const input = document.querySelector('input');
+        input.value = screen.width;
+        screen.setMainCallback('widthchange', () => input.value = screen.width);
+
+        const applyMobileClass = () => {
+            const listItems = document.querySelectorAll(".main-container li");
+            const mobileClass = 'in-mobile';
+
+            listItems.forEach(el => {
+                el.classList.add(mobileClass);
+            });
+        }
+
+        const removeMobileClass = () => {
+            const listItems = document.querySelectorAll(".main-container li");
+            const mobileClass = 'in-mobile';
+
+            listItems.forEach(el => {
+                el.classList.remove(mobileClass);
+            });
+        }
+
+        const onDone = () => {
+            console.log ('Done setting callback');
+        }
+
+        screen.setWidthCategoryCallback('mobile', 'enter', applyMobileClass, onDone);
+        screen.setWidthCategoryCallback('mobile', 'leave', removeMobileClass, onDone);
+
+
+
+    </script>
 </body>
+
 </html>

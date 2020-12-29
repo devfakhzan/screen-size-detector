@@ -25,7 +25,7 @@
 
 ### Introduction
 
-**screen-size-detector** is a small utility to detect screen (viewport) size (resolution height and width) and listener to resize event with additional features. You may think of it as media query in JavaScript at its core.
+**screen-size-detector** is a small utility to detect screen (viewport) size (resolution height and width) and listener to resize event with additional features. You may think of it as some sort of JavaScript media query (amont other things) in at its core.
 
 
 
@@ -49,12 +49,14 @@
 
 - You can specify a (function) callback to be executed after the usage completion of all available methods:
 
+  - setMainCallback
+  - removeMainCallback
   - addWidthDefinitions
   - removeWidthDefinition
-  - setCallback
-  - removeCallback
+  - setWidthCategoryCallback
+  - removeWidthCategoryCallback
   
-- You may modify the configurations and definitions of the library at any time after initialisation
+- You may modify the configurations and definitions of the instance at any time after initialisation
 
 - No external dependencies and lightweight
 
@@ -94,7 +96,7 @@ yarn add screen-size-detector
 
 ### Usage
 
-The most basic usage example (In node)
+The most basic usage example (In node):
 
 ```js
 const ScreenSizeDetector = require('screen-size-detector');
@@ -105,7 +107,7 @@ const screen = new ScreenSizeDetector(); // Default options
 console.log(screen.width); // Then use screen anywhere in your project
 ```
 
-The most basic usage example (In browser)
+The most basic usage example (In browser):
 
 ```html
 <script src="https://unpkg.com/screen-size-detector@latest/dist/screen-size-detector.min.js"></script>
@@ -136,10 +138,10 @@ The default options used if no options is supplied are as follows:
 
 ```javascript
 const defaultOptions = {
-  heightChange: () => {}, // OPTIONAL: A callback to trigger on screen height change
-  widthChange: () => {}, // OPTIONAL: A callback to trigger on screen width change
-  sizeChange: () => {}, // OPTIONAL: A callback to trigger on screen width and height change
-  widthDefinitions: { // Width definitions. Can be overwritten, added or removed
+  onHeightChange: () => {}, // OPTIONAL: A callback to trigger on screen height change
+  onWidthChange: () => {}, // OPTIONAL: A callback to trigger on screen width change
+  onBothChange: () => {}, // OPTIONAL: A callback to trigger on screen width and height change
+  widthDefinitions: { // Width definitions object. Can be overwritten, added or removed
     smartwatch: {
       min: 0,
       max: 319,
@@ -198,7 +200,7 @@ const screen = new ScreenSizeDetector(defaultOptions); // same as const screen =
   - Example:
 
   - ```javascript
-    console.log(`The current screen width is` ${screen.width});
+    console.log(`The current screen width is ${screen.width}`);
     ```
 
 
@@ -211,7 +213,7 @@ const screen = new ScreenSizeDetector(defaultOptions); // same as const screen =
   - Example:
 
   - ```javascript
-    console.log(`The current screen height is` ${screen.height});
+    console.log(`The current screen height is ${screen.height}`);
     ```
 
   
@@ -223,20 +225,9 @@ const screen = new ScreenSizeDetector(defaultOptions); // same as const screen =
   - Example:
 
   - ```javascript
-    const listItems = document.querySelectorAll(".main-container li");
-    const mobileClass = 'in-mobile';
-    
-    if (screen.is.mobile) {
-        listItems.forEach(el => {
-            el.classList.add(mobileClass);
-        });
-    } else {
-        listItems.forEach(el => {
-            el.classList.remove(mobileClass);
-        });
-    }
+    console.log(`The current screen width in mobile category: ${screen.is.mobile}`);
     ```
-
+    
 
 
 
@@ -246,13 +237,58 @@ Here are the available methods on the initialised object:
 
 
 
+- **setMainCallback (when, callback[, onDone])**
+
+  - Description: A method to set callback to be executed. Available events are on width change, height change and both width and height change
+
+  - `when` <String> | When to trigger the callback. The options are **`widthchange`**, **`heightchange`** and **`bothchange`** (required)
+
+  - callback <Function> | The callback to be triggered when the condition is met (required) 
+
+  - `onDone` <Function> | A callback (optional)
+
+  - Example:
+
+  - ```javascript
+    const input = document.querySelector('input');
+    input.value = screen.width;
+    screen.setMainCallback('widthchange', () => input.value = screen.width); // Reactive
+    ```
+  
+
+
+
+
+
+- **removeMainCallback (widthCategoryName, when[, onDone])**
+
+  - Description: A method to remove callback for events of width change, height change or both width and height change
+
+  - `when` <String> | The event where the callback to be removed. The options are **`widthchange`**, **`heightchange`** and **`bothchange`** (required)
+
+  - `onDone` <Function> | A callback (optional)
+
+  - Example:
+
+  - ```javascript
+    const onDone = () => {
+        console.log ('Done removing width change callback');
+    }
+    
+    screen.removeMainCallback('widthchange', onDone);
+    ```
+
+
+
+
+
 - **addWidthDefinitions (widthDefinitionObject[, onDone])**
 
-  - Description: A method to add width definition.
+  - Description: A method to add width definition to the instance
 
   - `widthDefinitionObject` <Object> | Width definition object, the structure is the same as [Options](#options) (***defaultOptions***) object above (required) 
 
-  - `onDone` <Function> | A callback (optional). *Note: The first argument can be used to access the instance*
+  - `onDone` <Function> | A callback (optional)
 
   - Example: 
 
@@ -270,8 +306,8 @@ Here are the available methods on the initialised object:
         },
     };
     
-    const onDone = (s) => {
-        console.log(`Done adding. Is my screen width laptop and smaller: ${s.is.laptopandsmaller}`);
+    const onDone = () => {
+        console.log(`Done adding. Is my screen width laptop and smaller: ${screen.is.laptopandsmaller}`);
     };
     
     screen.addWidthDefinitions(widthDefinitionObject, onDone);
@@ -283,15 +319,17 @@ Here are the available methods on the initialised object:
 
 - **removeWidthDefinition (widthCategoryName[, onDone])**
 
+  - Description: A method to remove width definition from the instance
+
   - `widthCategoryName` <String> | Width category name (required)
 
-  - `onDone` <Function> | A callback (optional) *Note: The first argument can be used to access the instance*
+  - `onDone` <Function> | A callback (optional) 
 
   - Example: 
-
+  
   - ```javascript
-    const onDone = (s) => {
-        console.log(`Done removing. My current screen width is: ${s.width}px`);
+    const onDone = () => {
+        console.log(`Done removing. My current screen width is: ${screen.width}px`);
     };
     
     screen.removeWidthDefinition('smartwatch', onDone);
@@ -301,52 +339,71 @@ Here are the available methods on the initialised object:
 
 
 
-- **setCallback (widthCategoryName, when, callback[, onDone])**
+- **setWidthCategoryCallback (widthCategoryName, when, callback[, onDone])**
+
+  - Description: A method to set the callback to be triggered whether the width range has been entered, is inside or exited
 
   - `widthCategoryName` <String> | Width category name (required)
 
   - `when` <String> | When to trigger the callback. The options are **`enter`**, **`whenInside`** and **`leave`** (required)
 
-  - callback <Function> | The callback to be triggered when the condition is met (required) *Note: The first argument can be used to access the instance*
+  - callback <Function> | The callback to be triggered when the condition is met (required) 
 
-  - `onDone` <Function> | A callback (optional) *Note: The first argument can be used to access the instance*
+  - `onDone` <Function> | A callback (optional)
 
   - Example:
-
+  
   - ```javascript
-    const callback => (s) => {
-        console.log(`I have entered mobile screne size with the width of ${s.width}px`);
+    const applyMobileClass = () => {
+        const listItems = document.querySelectorAll(".main-container li");
+        const mobileClass = 'in-mobile';
+    
+        listItems.forEach(el => {
+            el.classList.add(mobileClass);
+        });
+    }
+  
+    const removeMobileClass = () => {
+        const listItems = document.querySelectorAll(".main-container li");
+        const mobileClass = 'in-mobile';
+    
+        listItems.forEach(el => {
+            el.classList.remove(mobileClass);
+        });
     }
     
-    const onDone => () => {
+    const onDone = () => {
         console.log ('Done setting callback');
     }
     
-    screen.setCallback('mobile', 'enter', callback, onDone);
+    screen.setWidthCategoryCallback('mobile', 'enter', applyMobileClass, onDone);
+    screen.setWidthCategoryCallback('mobile', 'leave', removeMobileClass, onDone);
     ```
-
+  
     
 
 
 
-- **removeCallback (widthCategoryName, when[, onDone])**
+- **removeWidthCategoryCallback (widthCategoryName, when[, onDone])**
+
+  - Description: A method to remove width category callback from the instance
 
   - `widthCategoryName` <String> | Width category name (required)
 
-  - `when` <String> | When to trigger the callback. The options are **`enter`**, **`whenInside`** and **`leave`** (required)
+  - `when` <String> | The event  where the callback to be removed. The options are **`enter`**, **`whenInside`** and **`leave`** (required)
 
-  - `onDone` <Function> | A callback (optional) *Note: The first argument can be used to access the instance*
+  - `onDone` <Function> | A callback (optional)
 
   - Example:
-
+  
   - ```javascript
-    const onDone => () => {
+    const onDone = () => {
         console.log ('Done removing mobile enter callback');
     }
     
-    screen.removeCallback('mobile', 'enter', onDone);
+  screen.removeWidthCategoryCallback('mobile', 'enter', onDone);
     ```
-
+  
 
 
 

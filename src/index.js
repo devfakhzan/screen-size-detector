@@ -10,35 +10,35 @@ class ScreenSizeDetector {
     const o = options;
 
     // User options validators
-    if (o.heightChange && typeof o.heightChange !== "function")
-      throw this.typeErrorMessageBuilder(
-        '"heightChange"',
+    if (o.onHeightChange && typeof o.onHeightChange !== "function")
+      throw this._typeErrorMessageBuilder(
+        '"onHeightChange"',
         "function",
-        o.heightChange
+        o.onHeightChange
       );
-    if (o.widthChange && typeof o.widthChange !== "function")
-      throw this.typeErrorMessageBuilder(
-        '"widthChange"',
+    if (o.onWidthChange && typeof o.onWidthChange !== "function")
+      throw this._typeErrorMessageBuilder(
+        '"onWidthChange"',
         "function",
-        o.widthChange
+        o.onWidthChange
       );
-    if (o.sizeChange && typeof o.sizeChange !== "function")
-      throw this.typeErrorMessageBuilder(
-        '"sizeChange"',
+    if (o.onBothChange && typeof o.onBothChange !== "function")
+      throw this._typeErrorMessageBuilder(
+        '"onBothChange"',
         "function",
-        o.sizeChange
+        o.onBothChange
       );
 
-    if (o.widthDefinitions && !this.isEmptyObject(o.widthDefinitions)) {
-      this.validateWidthDefinition(o.widthDefinitions);
+    if (o.widthDefinitions && !this._isEmptyObject(o.widthDefinitions)) {
+      this._validateWidthDefinition(o.widthDefinitions);
     }
 
-    window.addEventListener("resize", () => this.resizeHandler());
+    window.addEventListener("resize", () => this._resizeHandler());
 
     const defaultOptions = {
-      heightChange: () => {},
-      widthChange: () => {},
-      sizeChange: () => {},
+      onHeightChange: () => {},
+      onWidthChange: () => {},
+      onBothChange: () => {},
       widthDefinitions: {
         smartwatch: {
           min: 0,
@@ -56,7 +56,7 @@ class ScreenSizeDetector {
           inclusion: "[]",
           onEnter: () => {},
           whileInside: () => {},
-          onLeave: () => {}
+          onLeave: () => {},
         },
         laptop: {
           min: 769,
@@ -78,7 +78,7 @@ class ScreenSizeDetector {
 
     // Create final options with defaultOptions as the base, merged/overwritten by user supplied 'options'
     if (o.widthDefinitions) {
-      if (!this.isEmptyObject(o.widthDefinitions)) {
+      if (!this._isEmptyObject(o.widthDefinitions)) {
         defaultOptions.widthDefinitions = {
           ...defaultOptions.widthDefinitions,
           ...o.widthDefinitions,
@@ -108,7 +108,7 @@ class ScreenSizeDetector {
     Object.keys(this.widthDefinitions).forEach((key) => (isObj[key] = false));
     this.is = isObj;
 
-    this.computeIsAndCallbacks();
+    this._computeIsAndCallbacks();
   }
 
   _aOrAn(noun) {
@@ -116,21 +116,68 @@ class ScreenSizeDetector {
   }
 
   addWidthDefinitions(widthDefinitionObject, onDone = () => {}) {
-    this.validateWidthDefinition(widthDefinitionObject, false);
+    this._validateWidthDefinition(widthDefinitionObject, false);
 
-    for (let [screenWidthName, screenWidthObject] of Object.entries(widthDefinitionObject)) {
-      this.widthDefinitions[screenWidthName] = screenWidthObject;
+    for (let [widthCategoryName, screenWidthObject] of Object.entries(
+      widthDefinitionObject
+    )) {
+      this.widthDefinitions[widthCategoryName] = screenWidthObject;
     }
 
-    this.computeIsAndCallbacks();
+    this._computeIsAndCallbacks();
 
-    onDone(this);
+    onDone();
   }
 
-  validateWidthDefinition(obj, atInit = true) {
+  setMainCallback(when, callback, onDone = () => {}) {
+    const acceptableEvents = {
+      widthchange: "onWidthChange",
+      heightchange: "onHeightChange",
+      bothchange: "onBothChange",
+    };
+
+    if (!Object.keys(acceptableEvents).includes(when))
+      throw `Error: The second parameter (when) has to be a string with a value of either "widthchange", "heightchange" or "bothchange". "${when}" was supplied`;
+
+    const eventName = acceptableEvents[when];
+
+    const callbackType = typeof callback;
+    if (callbackType !== "function") {
+      throw this._typeErrorMessageBuilder(
+        `"${eventName}" for options`,
+        "function",
+        callbackType
+      );
+    }
+
+    this[eventName] = () => callback();
+
+    this._computeIsAndCallbacks();
+
+    onDone();
+  }
+
+  removeMainCallback(when, onDone = () => {}) {
+    const acceptableEvents = {
+      widthchange: "onWidthChange",
+      heightchange: "onHeightChange",
+      bothchange: "onBothChange",
+    };
+
+    if (!Object.keys(acceptableEvents).includes(when))
+      throw `Error: The first parameter (when) has to be a string with a value of either "widthchange", "heightchange" or "bothchange". "${when}" was supplied`;
+
+    const eventName = acceptableEvents[when];
+
+    this[eventName] = () => {};
+
+    onDone();
+  }
+
+  _validateWidthDefinition(obj, atInit = true) {
     const where = atInit ? "widthDefinition" : "the main object";
     if (typeof obj !== "object")
-      throw this.typeErrorMessageBuilder(
+      throw this._typeErrorMessageBuilder(
         atInit ? where : "The main object",
         "object",
         obj
@@ -143,10 +190,10 @@ class ScreenSizeDetector {
       inclusion: ["string"],
     };
 
-    for (let [screenWidthName, screenWidthObject] of Object.entries(obj)) {
+    for (let [widthCategoryName, screenWidthObject] of Object.entries(obj)) {
       if (typeof screenWidthObject !== "object")
-        throw this.typeErrorMessageBuilder(
-          `"${screenWidthName}" inside ${where}`,
+        throw this._typeErrorMessageBuilder(
+          `"${widthCategoryName}" inside ${where}`,
           "object",
           screenWidthObject
         );
@@ -161,7 +208,7 @@ class ScreenSizeDetector {
       }
 
       if (!validObj) {
-        throw `Invalid ${where} for "${screenWidthName}" due to missing required object key(s). "${screenWidthName}" has to be an object containing "min" (Number), "max" (Number) and "inclusion" (String)`;
+        throw `Invalid ${where} for "${widthCategoryName}" due to missing required object key(s). "${widthCategoryName}" has to be an object containing "min" (Number), "max" (Number) and "inclusion" (String)`;
       }
 
       for (let [key, value] of Object.entries(screenWidthObject)) {
@@ -169,37 +216,33 @@ class ScreenSizeDetector {
 
         // Current key requires validation
         if (acceptableTypes && !acceptableTypes.includes(typeof value)) {
-          throw this.typeErrorMessageBuilder(
-            `"${key}" for "${screenWidthName}" inside ${where}`,
+          throw this._typeErrorMessageBuilder(
+            `"${key}" for "${widthCategoryName}" inside ${where}`,
             acceptableTypes.join(", or "),
             value
           );
         }
 
         if (screenWidthObject.min > screenWidthObject.max) {
-          throw `Error: The value of "min" has to be equals to or less than the value of "max" for "${screenWidthName}" inside ${where}`;
+          throw `Error: The value of "min" has to be equals to or less than the value of "max" for "${widthCategoryName}" inside ${where}`;
         } else if (screenWidthObject.min > screenWidthObject.max) {
-          throw `Error: The value of "max" has to be equals to or greater than the value of "min" for "${screenWidthName}" inside ${where}`;
+          throw `Error: The value of "max" has to be equals to or greater than the value of "min" for "${widthCategoryName}" inside ${where}`;
         }
 
         if (key === "inclusion") {
-          if (!this.isValidInclusion(value)) {
-            throw `Error: Invalid inclusion provided for screen size "${screenWidthName}". The only valid value is a string with the value "[]", "()", "[)" or "()"`;
+          if (!this._isValidInclusion(value)) {
+            throw `Error: Invalid inclusion provided for screen size "${widthCategoryName}". The only valid value is a string with the value "[]", "()", "[)" or "()"`;
           }
         }
 
         // Optional whileInside, onEnter and onLeave functions. If supplied, they have to be a function
-        const optionalCallbackFunctions = [
-          "whileInside",
-          "onEnter",
-          "onLeave",
-        ];
+        const optionalCallbackFunctions = ["whileInside", "onEnter", "onLeave"];
 
         for (let callbackName of optionalCallbackFunctions) {
           if (key === callbackName) {
             if (typeof value !== "function") {
-              throw this.typeErrorMessageBuilder(
-                `"${key}" for "${screenWidthName}" inside ${where}`,
+              throw this._typeErrorMessageBuilder(
+                `"${key}" for "${widthCategoryName}" inside ${where}`,
                 `function if defined`,
                 value
               );
@@ -217,10 +260,15 @@ class ScreenSizeDetector {
 
     delete this.widthDefinitions[widthCategoryName];
 
-    onDone(this);
+    onDone();
   }
 
-  setCallback(widthCategoryName, when, callback, onDone = () => {}) {
+  setWidthCategoryCallback(
+    widthCategoryName,
+    when,
+    callback,
+    onDone = () => {}
+  ) {
     if (!this.widthDefinitions[widthCategoryName]) {
       throw `Error: "${widthCategoryName}" is not found in "widthDefinitions". You need to define it first by using the "defineWidth" method`;
     }
@@ -238,21 +286,21 @@ class ScreenSizeDetector {
 
     const callbackType = typeof callback;
     if (callbackType !== "function") {
-      throw this.typeErrorMessageBuilder(
-        `"${eventName}" for "${screenWidthName}" inside "widthDefinitions"`,
+      throw this._typeErrorMessageBuilder(
+        `"${eventName}" for "${widthCategoryName}" inside "widthDefinitions"`,
         "function",
         callbackType
       );
     }
 
-    this.widthDefinitions[screenWidthName][eventName] = () => callback(this);
+    this.widthDefinitions[widthCategoryName][eventName] = () => callback();
 
-    this.computeIsAndCallbacks();
+    this._computeIsAndCallbacks();
 
-    onDone(this);
+    onDone();
   }
 
-  removeCallback(widthCategoryName, when, onDone = () => {}) {
+  removeWidthCategoryCallback(widthCategoryName, when, onDone = () => {}) {
     if (!this.widthDefinitions[widthCategoryName]) {
       throw `"${widthCategoryName}" is not found in "widthDefinitions" for callback removal`;
     }
@@ -268,12 +316,12 @@ class ScreenSizeDetector {
 
     const eventName = acceptableEvents[when];
 
-    delete this.widthDefinitions[screenWidthName][eventName];
+    delete this.widthDefinitions[widthCategoryName][eventName];
 
-    onDone(this);
+    onDone();
   }
 
-  typeErrorMessageBuilder(property, type, valueProvided) {
+  _typeErrorMessageBuilder(property, type, valueProvided) {
     const typeOfValueProvided = typeof valueProvided;
     return `Error: ${property} has to be ${this._aOrAn(
       type
@@ -282,13 +330,13 @@ class ScreenSizeDetector {
     )} ${typeOfValueProvided} was provided`;
   }
 
-  isValidInclusion(inclusion) {
+  _isValidInclusion(inclusion) {
     const validInclusionRegex = /^[\[\(]{1}[\]\)]{1}/;
     return validInclusionRegex.test(inclusion);
   }
 
-  isWidthIncluded(screenSizeName, minWidth, maxWidth, inclusion) {
-    if (!this.isValidInclusion(inclusion)) {
+  _isWidthIncluded(screenSizeName, minWidth, maxWidth, inclusion) {
+    if (!this._isValidInclusion(inclusion)) {
       throw `Error: Invalid inclusion provided for screen size "${screenSizeName}". The only valid combinations are "[]", "()", "[)" and "()"`;
     }
 
@@ -303,32 +351,32 @@ class ScreenSizeDetector {
     return startPass && endPass;
   }
 
-  isEmptyObject(obj) {
+  _isEmptyObject(obj) {
     for (const prop in obj) {
       if (obj.hasOwnProperty(prop)) return false;
     }
     return true;
   }
 
-  computeIsAndCallbacks() {
+  _computeIsAndCallbacks() {
     for (let [name, property] of Object.entries(this.widthDefinitions)) {
       let oldIs = this.is[name];
 
-      const isWidthIncluded = this.isWidthIncluded(
+      const _isWidthIncluded = this._isWidthIncluded(
         name,
         property.min,
         property.max,
         property.inclusion
       );
-      this.is[name] = isWidthIncluded;
+      this.is[name] = _isWidthIncluded;
 
-      if (isWidthIncluded && this.widthDefinitions[name].whileInside) {
+      if (_isWidthIncluded && this.widthDefinitions[name].whileInside) {
         this.widthDefinitions[name].whileInside(this);
       }
 
       if (
         oldIs === false &&
-        isWidthIncluded &&
+        _isWidthIncluded &&
         this.widthDefinitions[name].onEnter
       ) {
         this.widthDefinitions[name].onEnter(this);
@@ -336,7 +384,7 @@ class ScreenSizeDetector {
 
       if (
         oldIs === true &&
-        !isWidthIncluded &&
+        !_isWidthIncluded &&
         this.widthDefinitions[name].onLeave
       ) {
         this.widthDefinitions[name].onLeave(this);
@@ -344,7 +392,7 @@ class ScreenSizeDetector {
     }
   }
 
-  resizeHandler() {
+  _resizeHandler() {
     const oldWidth = this.width;
     const oldHeight = this.height;
 
@@ -357,12 +405,12 @@ class ScreenSizeDetector {
       window.innerHeight || 0
     );
 
-    this.computeIsAndCallbacks();
+    this._computeIsAndCallbacks();
 
     if (oldWidth !== this.width && oldHeight === this.height) {
-      this.widthChange(this);
+      this.onWidthChange(this);
     } else if (oldWidth === this.width && oldHeight !== this.height) {
-      this.heightChange(this);
+      this.onHeightChange(this);
     } else if (
       oldWidth &&
       oldHeight &&
@@ -371,7 +419,7 @@ class ScreenSizeDetector {
       oldWidth !== this.width &&
       oldHeight !== this.height
     ) {
-      this.sizeChange(this);
+      this.onBothChange(this);
     }
   }
 }
