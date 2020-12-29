@@ -4,8 +4,7 @@
   "description": "A small utility to detect screen (viewport) size (resolution height and width) and listener to resize event with additional features",
   "main": "./src/index.js",
   "scripts": {
-    "dev": "webpack",
-    "build": "webpack build"
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
