@@ -1,6 +1,6 @@
 {
   "name": "screen-size-detector",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A small utility to detect screen (viewport) size (resolution height and width) and listener to resize event with additional features",
   "main": "./src/index.js",
   "scripts": {
