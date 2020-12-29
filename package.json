@@ -1,0 +1,56 @@
+{
+  "name": "screen-size-detector",
+  "version": "1.0.0",
+  "description": "A small utility to detect screen (viewport) size (resolution height and width) and listener to resize event with additional features",
+  "main": "./src/index.js",
+  "scripts": {
+    "dev": "webpack",
+    "build": "webpack build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devfakhzan/screen-size-detector.git"
+  },
+  "keywords": [
+    "viewport",
+    "detector",
+    "listener",
+    "size",
+    "resize",
+    "detect",
+    "listen",
+    "screen",
+    "size",
+    "mobile",
+    "tablet",
+    "width",
+    "height",
+    "xs",
+    "sm",
+    "md",
+    "lg",
+    "xl",
+    "light",
+    "lightweight",
+    "utility",
+    "helper",
+    "event",
+    "media",
+    "media query",
+    "query",
+    "alternative"
+  ],
+  "author": "Fakhzan Azwan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/devfakhzan/screen-size-detector/issues"
+  },
+  "homepage": "https://github.com/devfakhzan/screen-size-detector#readme",
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "babel-loader": "^8.2.2",
+    "webpack": "^5.11.1",
+    "webpack-cli": "^4.3.0"
+  }
+}
