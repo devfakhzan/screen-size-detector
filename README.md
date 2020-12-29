@@ -23,7 +23,7 @@
 
 ### Introduction
 
-**screen-size-detector** is a small utility to detect screen (viewport) size (resolution height and width) and listener to resize event with additional features. You may think of it as some sort of JavaScript media query (amont other things) in at its core.
+**screen-size-detector** is a small utility to detect screen (viewport) size (resolution height and width) and listener to resize event with additional features. You may think of it as some sort of JavaScript media query (among other things) in at its core.
 
 
 
