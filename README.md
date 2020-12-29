@@ -102,7 +102,7 @@ yarn add screen-size-detector
 
 ### Usage
 
-The most basic usage example (In node):
+The most basic usage example (In Node.js):
 
 ```js
 const ScreenSizeDetector = require('screen-size-detector');
