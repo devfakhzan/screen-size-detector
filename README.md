@@ -33,7 +33,7 @@
 
 - Predefined [screen width detections](#options), for example  `screen.is.mobile`, `screen.is.laptop`, etc. 
 
-- You may specify (functions) callback to be triggered on screen width change, screen height change and screen width and height change (3 different callbacks support)
+- You may specify callback (functions) to be triggered on screen width change, screen height change and screen width and height change (3 different callbacks support)
 
 - You may overwrite the predefined screen width configurations, and you may add your own screen width definitions and configurations, at instance creation or at any time by using the available methods, as much as you want
 
@@ -43,7 +43,7 @@
   - **is inside**
   - **leaves** 
 
-  the defined screen width range (min and max), of any defined screen width.
+  the defined screen width range (min and max), of any defined screen width
 
 - You can specify a (function) callback to be executed after the usage completion of all available methods:
 
@@ -221,7 +221,7 @@ const screen = new ScreenSizeDetector(defaultOptions); // same as const screen =
   - Example:
 
   - ```javascript
-    console.log(`The current screen width in mobile category: ${screen.is.mobile}`);
+    console.log(`The current screen width is in mobile category: ${screen.is.mobile}`);
     ```
     
 
@@ -405,7 +405,7 @@ Here are the available methods on the initialised object:
 
 ### Issues, Questions and Suggestions
 
-Have any issues, questions or suggestions? You are very welcomed to head over to the [Issues page](https://github.com/devfakhzan/screen-size-detector/issues) and let's see what we can do to make this small utility better
+Have any issues, questions or suggestions? You are very welcomed to head over to the [Issues page](https://github.com/devfakhzan/screen-size-detector/issues) and let's see what we can do together to make this small utility better
 
 
 
