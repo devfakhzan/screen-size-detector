@@ -31,7 +31,7 @@
 
 - Easy current screen width and height getters. For example:  `screen.width` and `screen.height`
 
-- Predefined [screen width detections](#default options), for example  `screen.is.mobile`, `screen.is.laptop`, etc. 
+- Predefined [screen width detections](#options), for example  `screen.is.mobile`, `screen.is.laptop`, etc. 
 
 - You may specify (functions) callback to be triggered on screen width change, screen height change and screen width and height change (3 different callbacks support)
 
