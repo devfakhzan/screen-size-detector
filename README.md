@@ -119,8 +119,6 @@ The most basic usage example (In browser):
 <script src="https://unpkg.com/screen-size-detector@latest/dist/screen-size-detector.min.js"></script>
 
 <script>
-const ScreenSizeDetector = new ScreenSizeDetector();
-
 const screen = new ScreenSizeDetector(); // Default options
 console.log(screen.width); // Then use screen anywhere in your project   
 </script>
