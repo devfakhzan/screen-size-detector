@@ -407,7 +407,7 @@ Here are the available methods on the initialised object:
         console.log ('Done removing mobile enter callback');
     }
     
-  screen.removeWidthCategoryCallback('mobile', 'enter', onDone);
+    screen.removeWidthCategoryCallback('mobile', 'enter', onDone);
     ```
   
 
