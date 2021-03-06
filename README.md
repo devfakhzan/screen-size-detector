@@ -411,4 +411,4 @@ Have any issues, questions or suggestions? You are very welcomed to head over to
 
 ### License
 
-[MIT](License)
+[MIT](https://github.com/git/git-scm.com/blob/master/MIT-LICENSE.txt)
