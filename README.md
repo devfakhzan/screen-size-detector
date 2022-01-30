@@ -2,7 +2,7 @@
 
 
 
-# screen-size-detector
+# screen-size-detector [![npm version](https://badge.fury.io/js/screen-size-detector.svg)](https://www.npmjs.com/package/screen-size-detector)
 
 
 
